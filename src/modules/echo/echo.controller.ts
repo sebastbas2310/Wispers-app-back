@@ -19,16 +19,16 @@ export class EchoController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.echoService.findOne(+id);
+    return this.echoService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateEchoDto: UpdateEchoDto) {
-    return this.echoService.update(+id, updateEchoDto);
+    return this.echoService.update(id, updateEchoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.echoService.remove(+id);
+    return this.echoService.remove(id);
   }
 }

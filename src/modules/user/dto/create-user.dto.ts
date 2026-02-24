@@ -27,7 +27,7 @@ export class CreateUserDto {
 
     chatHistory: string[];
     echos: string[];
-
+    Friends: string[];
     @IsString()
     @IsOptional()
     profilePicture: string;

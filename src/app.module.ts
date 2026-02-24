@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { configurationMongo } from './configuration/configuration-mongo';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EchoModule } from './modules/echo/echo.module';
 
 @Module({
   imports: [
@@ -23,7 +24,9 @@ import { AuthModule } from './modules/auth/auth.module';
       inject: [ConfigService]
     }),
     UserModule,
-    AuthModule
+    AuthModule,
+    // register echo module for CRUD operations
+    EchoModule,
   ],
   controllers: [AppController],
   providers: [AppService],
