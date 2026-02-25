@@ -1,9 +1,9 @@
-import { IsArray, IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsDate, IsIn, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class CreateEchoDto {
   @IsString()
-  @IsNotEmpty()
-  ID: string;
+  @IsOptional()
+  ID?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -36,4 +36,22 @@ export class CreateEchoDto {
   @IsString()
   @IsOptional()
   echoImage: string;
+
+  // nuevo: tipo de membresía, privacidad, contraseña condicional y tipo de echo
+  @IsString()
+  @IsNotEmpty()
+  membershipType: string;
+
+  @IsString()
+  @IsIn(['public', 'private'])
+  privacy: string;
+
+  @ValidateIf(o => o.privacy === 'private')
+  @IsString()
+  @IsNotEmpty()
+  password?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  echoType: string;
 }

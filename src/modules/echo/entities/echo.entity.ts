@@ -1,11 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import * as shortid from 'shortid';
 
 export type EchoDocument = HydratedDocument<Echo>;
 
 @Schema()
 export class Echo {
-  @Prop({ required: true, unique: true })
+  @Prop({ default: () => shortid.generate() })
   ID: string;
 
   @Prop({ required: true })
@@ -31,6 +32,19 @@ export class Echo {
 
   @Prop()
   echoImage: string;
+
+  // nuevos atributos
+  @Prop({ required: true })
+  membershipType: string;
+
+  @Prop({ required: true, enum: ['public', 'private'], default: 'public' })
+  privacy: string;
+
+  @Prop()
+  password: string;
+
+  @Prop({ required: true })
+  echoType: string;
 }
 
 export const EchoSchema = SchemaFactory.createForClass(Echo);
