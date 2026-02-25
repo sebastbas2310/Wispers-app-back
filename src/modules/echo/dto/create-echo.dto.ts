@@ -51,7 +51,7 @@ export class CreateEchoDto {
   @IsNotEmpty()
   password?: string;
 
-  @IsString()
+ /* @IsString()
   @IsNotEmpty()
-  echoType: string;
+  echoType: string;*/
 }
