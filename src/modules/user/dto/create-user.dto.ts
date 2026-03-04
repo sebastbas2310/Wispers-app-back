@@ -1,8 +1,6 @@
 import { IsDate, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateUserDto {
-
-    ID: string;
     
     @IsString()
     @IsNotEmpty()
@@ -22,12 +20,8 @@ export class CreateUserDto {
     
     @IsDate()
     @IsNotEmpty()
-    dateOfBirth: number;
+    dateOfBirth: Date;
 
-
-    chatHistory: string[];
-    echos: string[];
-    Friends: string[];
     @IsString()
     @IsOptional()
     profilePicture: string;
