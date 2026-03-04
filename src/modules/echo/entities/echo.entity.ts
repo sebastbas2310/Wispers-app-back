@@ -33,19 +33,18 @@ export class Echo {
   @Prop()
   echoImage: string;
 
-  // nuevos atributos
-  /*@Prop({ required: true })
+  @Prop({ required: true })
   membershipType: string;
-*/
+
   @Prop({ required: true, enum: ['public', 'private'], default: 'public' })
   privacy: string;
 
   @Prop()
   password: string;
 
- /* @Prop({ required: true })
+  @Prop({ required: true })
   echoType: string;
-  */
+  
 }
 
 export const EchoSchema = SchemaFactory.createForClass(Echo);
