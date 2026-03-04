@@ -18,13 +18,7 @@ export class User {
   status: string;
 
   @Prop()
-  dateOfBirth: number;
-
-  @Prop([String])
-  chatHistory: string[];
-
-  @Prop([String])
-  echos: string[];
+  dateOfBirth: Date;
 
   @Prop()
   profilePicture: string;
