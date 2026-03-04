@@ -7,6 +7,12 @@ import { configurationMongo } from './configuration/configuration-mongo';
 import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EchoModule } from './modules/echo/echo.module';
+import { ChatModule } from './modules/chat/chat.module';
+import { MensajeModule } from './modules/mensaje/mensaje.module';
+import { PostModule } from './modules/post/post.module';
+import { EventModule } from './modules/event/event.module';
+import { VotacionModule } from './modules/votacion/votacion.module';
+import { TagsModule } from './modules/tags/tags.module';
 
 @Module({
   imports: [
@@ -25,8 +31,14 @@ import { EchoModule } from './modules/echo/echo.module';
     }),
     UserModule,
     AuthModule,
-    // register echo module for CRUD operations
+    // register feature modules
     EchoModule,
+    ChatModule,
+    MensajeModule,
+    PostModule,
+    EventModule,
+    VotacionModule,
+    TagsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

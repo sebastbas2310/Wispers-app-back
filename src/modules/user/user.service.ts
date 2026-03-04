@@ -61,17 +61,17 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    
     const existUser = await this.userModel.findById(id);
 
     if (!existUser) {
       throw new NotFoundException('User not found');
     }
 
+    // if email is changing, make sure it's not taken
     if (updateUserDto.email && updateUserDto.email !== existUser.email) {
-      const emailExists = await this.userModel.findOne({ 
+      const emailExists = await this.userModel.findOne({
         email: updateUserDto.email,
-        _id: { $ne: id }
+        _id: { $ne: id },
       });
 
       if (emailExists) {
@@ -79,10 +79,15 @@ export class UserService {
       }
     }
 
-    await this.userModel.updateOne({ _id: id }, updateUserDto);
+    // prepare update payload, hashing password if provided
+    const payload: any = { ...updateUserDto };
+    if (updateUserDto.password) {
+      payload.password = await bcrypt.hash(updateUserDto.password, 10);
+    }
+
+    await this.userModel.updateOne({ _id: id }, payload);
 
     return this.userModel.findById(id);
-
   }
 
   async changeStatus(id: string, status: string) {
