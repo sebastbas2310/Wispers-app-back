@@ -17,8 +17,57 @@ export class EchoService {
       throw new BadRequestException('Password required for private echo');
     }
 
-    const created = new this.echoModel(createEchoDto);
+    // attach creator to members automatically
+    const creator = createEchoDto.echoCreator;
+    const existingMembers = Array.isArray(createEchoDto.echoMembers) ? createEchoDto.echoMembers : [];
+    const membersSet = new Set(existingMembers);
+    if (creator) {
+      membersSet.add(creator);
+    }
+
+    const createdData = {
+      ...createEchoDto,
+      echoMembers: Array.from(membersSet),
+      echoMessages: Array.isArray(createEchoDto.echoMessages) ? createEchoDto.echoMessages : [],
+      echoTags: Array.isArray(createEchoDto.echoTags) ? createEchoDto.echoTags : [],
+    };
+
+    const created = new this.echoModel(createdData);
     return created.save();
+  }
+
+  async addMember(echoId: string, userId: string): Promise<Echo> {
+    const echo = await this.findOne(echoId);
+    if (!echo.echoMembers) {
+      echo.echoMembers = [];
+    }
+    if (!echo.echoMembers.includes(userId)) {
+      echo.echoMembers.push(userId);
+      await echo.save();
+    }
+    return echo;
+  }
+
+  async addMessage(echoId: string, message: string): Promise<Echo> {
+    const echo = await this.findOne(echoId);
+    if (!echo.echoMessages) {
+      echo.echoMessages = [];
+    }
+    echo.echoMessages.push(message);
+    await echo.save();
+    return echo;
+  }
+
+  async addTag(echoId: string, tag: string): Promise<Echo> {
+    const echo = await this.findOne(echoId);
+    if (!echo.echoTags) {
+      echo.echoTags = [];
+    }
+    if (!echo.echoTags.includes(tag)) {
+      echo.echoTags.push(tag);
+      await echo.save();
+    }
+    return echo;
   }
 
   async findAll(): Promise<Echo[]> {
@@ -31,6 +80,10 @@ export class EchoService {
       throw new NotFoundException(`Echo with ID ${id} not found`);
     }
     return echo;
+  }
+
+  async findByCreator(creatorId: string): Promise<Echo[]> {
+    return this.echoModel.find({ echoCreator: creatorId }).exec();
   }
 
   async update(id: string, updateEchoDto: UpdateEchoDto): Promise<Echo> {
