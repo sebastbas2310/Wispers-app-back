@@ -38,10 +38,10 @@ export class CreateEchoDto {
   echoImage: string;
 
   // nuevo: tipo de membresía, privacidad, contraseña condicional y tipo de echo
-  /*@IsString()
+  @IsString()
   @IsNotEmpty()
   membershipType: string;
-*/
+
   @IsString()
   @IsIn(['public', 'private'])
   privacy: string;
@@ -51,7 +51,7 @@ export class CreateEchoDto {
   @IsNotEmpty()
   password?: string;
 
- /* @IsString()
+  @IsString()
   @IsNotEmpty()
-  echoType: string;*/
+  echoType: string;
 }
