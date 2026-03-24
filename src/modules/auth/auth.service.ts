@@ -29,8 +29,12 @@ export class AuthService {
     const payload = { email: user.email, sub: user._id };
     const token = this.jwtService.sign(payload);
 
+    // Debug: mostrar el token en servidor (quitar en prod si quieres)
+    console.log('[AuthService] generated JWT:', token);
+
     return {
       accessToken: token,
+      token,
       user: {
         id: user._id,
         email: user.email,
