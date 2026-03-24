@@ -37,7 +37,10 @@ export class EchoService {
   }
 
   async addMember(echoId: string, userId: string): Promise<Echo> {
-    const echo = await this.findOne(echoId);
+    const echo = await this.echoModel.findOne({ ID: echoId }).exec();
+    if (!echo) {
+      throw new NotFoundException(`Echo with ID ${echoId} not found`);
+    }
     if (!echo.echoMembers) {
       echo.echoMembers = [];
     }
@@ -49,7 +52,10 @@ export class EchoService {
   }
 
   async addMessage(echoId: string, message: string): Promise<Echo> {
-    const echo = await this.findOne(echoId);
+    const echo = await this.echoModel.findOne({ ID: echoId }).exec();
+    if (!echo) {
+      throw new NotFoundException(`Echo with ID ${echoId} not found`);
+    }
     if (!echo.echoMessages) {
       echo.echoMessages = [];
     }
@@ -59,7 +65,10 @@ export class EchoService {
   }
 
   async addTag(echoId: string, tag: string): Promise<Echo> {
-    const echo = await this.findOne(echoId);
+    const echo = await this.echoModel.findOne({ ID: echoId }).exec();
+    if (!echo) {
+      throw new NotFoundException(`Echo with ID ${echoId} not found`);
+    }
     if (!echo.echoTags) {
       echo.echoTags = [];
     }
