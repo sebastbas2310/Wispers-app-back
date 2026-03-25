@@ -26,4 +26,8 @@ export class CreatePostDto {
   @IsString({ each: true })
   @IsOptional()
   comments?: string[];
+
+  @IsString()
+  @IsOptional()
+  echoID?: string;
 } 

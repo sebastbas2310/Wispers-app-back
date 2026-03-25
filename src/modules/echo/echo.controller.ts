@@ -38,9 +38,9 @@ export class EchoController {
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/join')
-  join(@Param('id') id: string, @Request() req: any) {
+  join(@Param('id') id: string, @Body() body: { password?: string }, @Request() req: any) {
     const userId = req.user?._id || req.user?.id || req.user?.sub;
-    return this.echoService.addMember(id, userId);
+    return this.echoService.addMember(id, userId, body.password);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -19,7 +19,6 @@ export class CreateUserDto {
     @IsNotEmpty()
     status: string = 'active';
     
-
     @Type(() => Date)
     @IsDate()
     @IsNotEmpty()

@@ -26,6 +26,9 @@ export class Post {
 
   @Prop([String])
   comments: string[];
+
+  @Prop()
+  echoID: string;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

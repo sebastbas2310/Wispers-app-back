@@ -36,11 +36,22 @@ export class EchoService {
     return created.save();
   }
 
-  async addMember(echoId: string, userId: string): Promise<Echo> {
+  async addMember(echoId: string, userId: string, password?: string): Promise<Echo> {
     const echo = await this.echoModel.findOne({ ID: echoId }).exec();
     if (!echo) {
       throw new NotFoundException(`Echo with ID ${echoId} not found`);
     }
+
+    // Check if echo is private and validate password
+    if (echo.privacy === 'private') {
+      if (!password) {
+        throw new BadRequestException('Password required to join private echo');
+      }
+      if (echo.password !== password) {
+        throw new BadRequestException('Invalid password');
+      }
+    }
+
     if (!echo.echoMembers) {
       echo.echoMembers = [];
     }
