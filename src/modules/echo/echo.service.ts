@@ -42,6 +42,11 @@ export class EchoService {
       throw new NotFoundException(`Echo with ID ${echoId} not found`);
     }
 
+    // Validate userId is provided and valid
+    if (!userId || typeof userId !== 'string' || userId.trim() === '') {
+      throw new BadRequestException('Valid user ID is required to join echo');
+    }
+
     // Check if echo is private and validate password
     if (echo.privacy === 'private') {
       if (!password) {
