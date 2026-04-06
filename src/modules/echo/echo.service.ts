@@ -12,42 +12,35 @@ export class EchoService {
   ) {}
 
   async create(createEchoDto: CreateEchoDto): Promise<Echo> {
-    // ensure password is provided when privacy is private
     if (createEchoDto.privacy === 'private' && !createEchoDto.password) {
       throw new BadRequestException('Password required for private echo');
     }
 
-    // attach creator to members automatically
     const creator = createEchoDto.echoCreator;
-    const existingMembers = Array.isArray(createEchoDto.echoMembers) ? createEchoDto.echoMembers : [];
-    const membersSet = new Set(existingMembers);
-    if (creator) {
-      membersSet.add(creator);
-    }
+    const echoMembers = Array.from(
+      new Set([...(createEchoDto.echoMembers ?? []), ...(creator ? [creator] : [])]),
+    );
 
-    const createdData = {
+    const created = new this.echoModel({
       ...createEchoDto,
-      echoMembers: Array.from(membersSet),
-      echoMessages: Array.isArray(createEchoDto.echoMessages) ? createEchoDto.echoMessages : [],
-      echoTags: Array.isArray(createEchoDto.echoTags) ? createEchoDto.echoTags : [],
-    };
+      echoMembers,
+      echoMessages: createEchoDto.echoMessages ?? [],
+      echoTags: createEchoDto.echoTags ?? [],
+    });
 
-    const created = new this.echoModel(createdData);
     return created.save();
   }
 
   async addMember(echoId: string, userId: string, password?: string): Promise<Echo> {
-    const echo = await this.echoModel.findOne({ ID: echoId }).exec();
-    if (!echo) {
-      throw new NotFoundException(`Echo with ID ${echoId} not found`);
-    }
-
-    // Validate userId is provided and valid
     if (!userId || typeof userId !== 'string' || userId.trim() === '') {
       throw new BadRequestException('Valid user ID is required to join echo');
     }
 
-    // Check if echo is private and validate password
+    const echo = await this.echoModel.findById(echoId).select('privacy password').exec();
+    if (!echo) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
+    }
+
     if (echo.privacy === 'private') {
       if (!password) {
         throw new BadRequestException('Password required to join private echo');
@@ -57,42 +50,51 @@ export class EchoService {
       }
     }
 
-    if (!echo.echoMembers) {
-      echo.echoMembers = [];
+    const updated = await this.echoModel
+      .findByIdAndUpdate(
+        echoId,
+        { $addToSet: { echoMembers: userId } },
+        { new: true },
+      )
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
     }
-    if (!echo.echoMembers.includes(userId)) {
-      echo.echoMembers.push(userId);
-      await echo.save();
-    }
-    return echo;
+
+    return updated;
   }
 
   async addMessage(echoId: string, message: string): Promise<Echo> {
-    const echo = await this.echoModel.findOne({ ID: echoId }).exec();
-    if (!echo) {
-      throw new NotFoundException(`Echo with ID ${echoId} not found`);
+    const updated = await this.echoModel
+      .findByIdAndUpdate(
+        echoId,
+        { $push: { echoMessages: message } },
+        { new: true },
+      )
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
     }
-    if (!echo.echoMessages) {
-      echo.echoMessages = [];
-    }
-    echo.echoMessages.push(message);
-    await echo.save();
-    return echo;
+
+    return updated;
   }
 
   async addTag(echoId: string, tag: string): Promise<Echo> {
-    const echo = await this.echoModel.findOne({ ID: echoId }).exec();
-    if (!echo) {
-      throw new NotFoundException(`Echo with ID ${echoId} not found`);
+    const updated = await this.echoModel
+      .findByIdAndUpdate(
+        echoId,
+        { $addToSet: { echoTags: tag } },
+        { new: true },
+      )
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
     }
-    if (!echo.echoTags) {
-      echo.echoTags = [];
-    }
-    if (!echo.echoTags.includes(tag)) {
-      echo.echoTags.push(tag);
-      await echo.save();
-    }
-    return echo;
+
+    return updated;
   }
 
   async findAll(): Promise<Echo[]> {
@@ -100,9 +102,9 @@ export class EchoService {
   }
 
   async findOne(id: string): Promise<Echo> {
-    const echo = await this.echoModel.findOne({ ID: id }).exec();
+    const echo = await this.echoModel.findById(id).exec();
     if (!echo) {
-      throw new NotFoundException(`Echo with ID ${id} not found`);
+      throw new NotFoundException(`Echo with _id ${id} not found`);
     }
     return echo;
   }
@@ -117,16 +119,17 @@ export class EchoService {
     }
 
     const updated = await this.echoModel
-      .findOneAndUpdate({ ID: id }, updateEchoDto, { new: true })
+      .findByIdAndUpdate(id, updateEchoDto, { new: true })
       .exec();
+
     if (!updated) {
-      throw new NotFoundException(`Echo with ID ${id} not found`);
+      throw new NotFoundException(`Echo with _id ${id} not found`);
     }
     return updated;
   }
 
   async remove(id: string): Promise<{ deleted: boolean }> {
-    const res = await this.echoModel.deleteOne({ ID: id }).exec();
-    return { deleted: res.deletedCount > 0 };
+    const deleted = await this.echoModel.findByIdAndDelete(id).exec();
+    return { deleted: Boolean(deleted) };
   }
 }
