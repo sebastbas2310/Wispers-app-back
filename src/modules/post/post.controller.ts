@@ -11,7 +11,7 @@ export class PostController {
   @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createPostDto: CreatePostDto, @Request() req: any) {
-    createPostDto.authorId = req.user.sub; // assuming sub is the user id
+    createPostDto.authorId = req.user?._id || req.user?.id || req.user?.sub;
     return this.postService.create(createPostDto);
   }
 
