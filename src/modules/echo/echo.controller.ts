@@ -3,6 +3,7 @@ import { EchoService } from './echo.service';
 import { CreateEchoDto } from './dto/create-echo.dto';
 import { UpdateEchoDto } from './dto/update-echo.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
 
 @Controller('echo')
 export class EchoController {
@@ -32,37 +33,37 @@ export class EchoController {
   }
 
   @Get('user/:id')
-  findByUser(@Param('id') id: string) {
+  findByUser(@Param('id', ParseMongoIdPipe) id: string) {
     return this.echoService.findByCreator(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/join')
-  join(@Param('id') id: string, @Body() body: { password?: string }, @Request() req: any) {
+  join(@Param('id', ParseMongoIdPipe) id: string, @Body() body: { password?: string }, @Request() req: any) {
     const userId = req.user?._id || req.user?.id || req.user?.sub;
     return this.echoService.addMember(id, userId, body.password);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/message')
-  addMessage(@Param('id') id: string, @Body('message') message: string) {
+  addMessage(@Param('id', ParseMongoIdPipe) id: string, @Body('message') message: string) {
     return this.echoService.addMessage(id, message);
   }
 
   @UseGuards(JwtAuthGuard)
   @Post(':id/tag')
-  addTag(@Param('id') id: string, @Body('tag') tag: string) {
+  addTag(@Param('id', ParseMongoIdPipe) id: string, @Body('tag') tag: string) {
     return this.echoService.addTag(id, tag);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.echoService.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEchoDto: UpdateEchoDto, @Request() req: any) {
+  update(@Param('id', ParseMongoIdPipe) id: string, @Body() updateEchoDto: UpdateEchoDto, @Request() req: any) {
     const userId = req.user?._id || req.user?.id || req.user?.sub;
     // Opcional: control de dueño para no actualizar echos ajenos
     return this.echoService.update(id, updateEchoDto);
@@ -70,7 +71,7 @@ export class EchoController {
 
   @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.echoService.remove(id);
   }
 }

@@ -5,22 +5,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import e from 'express';
 
 @Injectable()
 export class UserService {
-  async findOne(id: string) {
-    const user = await this.userModel.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async create(createUserDto: CreateUserDto) {
-    
     const existUser = await this.userModel.findOne({ email: createUserDto.email });
 
     if (existUser) {
@@ -33,21 +23,18 @@ export class UserService {
 
     const createdUser = new this.userModel(userToCreate);
     return createdUser.save();
-
   }
 
   findAll() {
     return this.userModel.find();
   }
 
-  async findOneByID(id: string) {
-    const exiustUser = await this.userModel.findById(id);
-
-    if (!exiustUser) {
+  async findOne(id: string) {
+    const user = await this.userModel.findById(id);
+    if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    return exiustUser;
+    return user;
   }
 
   async findOneByEmail(email: string) {

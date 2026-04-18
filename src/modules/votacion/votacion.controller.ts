@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { VotacionService } from './votacion.service';
 import { CreateVotacionDto } from './dto/create-votacion.dto';
 import { UpdateVotacionDto } from './dto/update-votacion.dto';
+import { ParseMongoIdPipe } from '../../common/pipes/parse-mongo-id.pipe';
 
 @Controller('votacion')
 export class VotacionController {
@@ -18,17 +19,17 @@ export class VotacionController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.votacionService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateVotacionDto: UpdateVotacionDto) {
+  update(@Param('id', ParseMongoIdPipe) id: string, @Body() updateVotacionDto: UpdateVotacionDto) {
     return this.votacionService.update(id, updateVotacionDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.votacionService.remove(id);
   }
 }
