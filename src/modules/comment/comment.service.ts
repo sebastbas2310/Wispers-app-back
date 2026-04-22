@@ -4,12 +4,27 @@ import { Model } from 'mongoose';
 import { Comment, CommentDocument } from './entities/comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import { CommentResponseDto } from './dto/comment-response.dto';
+import { PostCommentsResponseDto } from './dto/post-comments-response.dto';
 
 @Injectable()
 export class CommentService {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
   ) {}
+
+  private mapToResponseDto(comment: Comment): CommentResponseDto {
+    return {
+      id: comment.id,
+      message: comment.message,
+      userId: comment.userId,
+      postId: comment.postId,
+      createdAt: comment.createdAt,
+      updatedAt: comment.updatedAt,
+      likes: comment.likes,
+      likesCount: comment.likes.length,
+    };
+  }
 
   async create(createCommentDto: CreateCommentDto, userId: string): Promise<Comment> {
     const created = new this.commentModel({
@@ -23,8 +38,18 @@ export class CommentService {
     return this.commentModel.find().sort({ createdAt: -1 }).exec();
   }
 
-  async findByPost(postId: string): Promise<Comment[]> {
-    return this.commentModel.find({ postId }).sort({ createdAt: -1 }).exec();
+  async findByPost(postId: string): Promise<CommentResponseDto[]> {
+    const comments = await this.commentModel.find({ postId }).sort({ createdAt: -1 }).exec();
+    return comments.map(comment => this.mapToResponseDto(comment));
+  }
+
+  async findByPostWithDetails(postId: string): Promise<PostCommentsResponseDto> {
+    const comments = await this.commentModel.find({ postId }).sort({ createdAt: -1 }).exec();
+    return {
+      postId,
+      total: comments.length,
+      comments: comments.map(comment => this.mapToResponseDto(comment)),
+    };
   }
 
   async findByUser(userId: string): Promise<Comment[]> {
