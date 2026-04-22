@@ -81,6 +81,9 @@ export class CommentService {
         { new: true },
       )
       .exec();
+    if (!updated) {
+      throw new NotFoundException(`Comentario #${id} no encontrado`);
+    }
     return updated;
   }
 
@@ -121,6 +124,9 @@ export class CommentService {
         { new: true },
       )
       .exec();
+    if (!updated) {
+      throw new NotFoundException(`Comentario #${commentId} no encontrado`);
+    }
     return updated;
   }
 
@@ -138,6 +144,9 @@ export class CommentService {
             likes: { userId },
           },
         },
+    if (!updated) {
+      throw new NotFoundException(`Comentario #${commentId} no encontrado`);
+    }
         { new: true },
       )
       .exec();
