@@ -20,6 +20,11 @@ export class CreatePostDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
+  tags?: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
   likes?: string[];
 
   @IsArray()
@@ -30,4 +35,4 @@ export class CreatePostDto {
   @IsString()
   @IsOptional()
   echoID?: string;
-} 
+}

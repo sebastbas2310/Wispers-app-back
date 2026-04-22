@@ -26,7 +26,7 @@ export class AuthService {
     }
 
     // Generar JWT
-    const payload = { email: user.email, sub: user._id };
+    const payload = { email: user.email, sub: user._id, role: user.role };
     const token = this.jwtService.sign(payload);
 
     // Debug: mostrar el token en servidor (quitar en prod si quieres)
@@ -40,6 +40,7 @@ export class AuthService {
         email: user.email,
         name: user.name,
         profilePicture: user.profilePicture,
+        role: user.role,
       },
     };
   }
@@ -49,6 +50,12 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException('User not found');
     }
-    return user;
+    return {
+      id: user._id,
+      email: user.email,
+      name: user.name,
+      profilePicture: user.profilePicture,
+      role: user.role,
+    };
   }
 }

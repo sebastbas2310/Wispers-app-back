@@ -13,6 +13,7 @@ import { PostModule } from './modules/post/post.module';
 import { EventModule } from './modules/event/event.module';
 import { VotacionModule } from './modules/votacion/votacion.module';
 import { TagsModule } from './modules/tags/tags.module';
+import { RoleModule } from './modules/role/role.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { TagsModule } from './modules/tags/tags.module';
     EventModule,
     VotacionModule,
     TagsModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
