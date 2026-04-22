@@ -144,12 +144,12 @@ export class CommentService {
             likes: { userId },
           },
         },
-    if (!updated) {
-      throw new NotFoundException(`Comentario #${commentId} no encontrado`);
-    }
         { new: true },
       )
       .exec();
+    if (!updated) {
+      throw new NotFoundException(`Comentario #${commentId} no encontrado`);
+    }
     return updated;
   }
 
