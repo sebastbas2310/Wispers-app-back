@@ -14,6 +14,8 @@ import { EventModule } from './modules/event/event.module';
 import { VotacionModule } from './modules/votacion/votacion.module';
 import { TagsModule } from './modules/tags/tags.module';
 import { RoleModule } from './modules/role/role.module';
+import { LikeModule } from './modules/like/like.module';
+import { CommentModule } from './modules/comment/comment.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { RoleModule } from './modules/role/role.module';
     ChatModule,
     MensajeModule,
     PostModule,
+    LikeModule,
+    CommentModule,
     EventModule,
     VotacionModule,
     TagsModule,
