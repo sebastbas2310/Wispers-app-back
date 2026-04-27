@@ -10,7 +10,11 @@ export class AdminGuard extends JwtAuthGuard {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
 
-    if (user.role !== 'admin') {
+    if (!user) {
+      throw new UnauthorizedException('User not found in request');
+    }
+
+    if (!user.role || user.role !== 'admin') {
       throw new UnauthorizedException('Admin access required');
     }
 

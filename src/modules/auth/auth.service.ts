@@ -46,6 +46,18 @@ export class AuthService {
   }
 
   async validateUser(payload: any) {
+    // Si el payload contiene los datos del usuario, usarlos directamente
+    if (payload.email && payload.role) {
+      return {
+        id: payload.sub || payload.id,
+        email: payload.email,
+        name: payload.name,
+        profilePicture: payload.profilePicture,
+        role: payload.role,
+      };
+    }
+
+    // Fallback: buscar el usuario en la base de datos
     const user = await this.userService.findOneByEmail(payload.email);
     if (!user) {
       throw new UnauthorizedException('User not found');
