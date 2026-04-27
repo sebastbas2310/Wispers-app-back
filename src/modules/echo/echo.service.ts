@@ -4,11 +4,15 @@ import { Model } from 'mongoose';
 import { CreateEchoDto } from './dto/create-echo.dto';
 import { UpdateEchoDto } from './dto/update-echo.dto';
 import { Echo, EchoDocument } from './entities/echo.entity';
+import { MemberRoleService } from './member-role.service';
+import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class EchoService {
   constructor(
     @InjectModel(Echo.name) private echoModel: Model<EchoDocument>,
+    private memberRoleService: MemberRoleService,
+    private roleService: RoleService,
   ) {}
 
   async create(createEchoDto: CreateEchoDto): Promise<Echo> {
@@ -28,7 +32,14 @@ export class EchoService {
       echoTags: createEchoDto.echoTags ?? [],
     });
 
-    return created.save();
+    const savedEcho = await created.save();
+
+    // Assign creator role to the creator
+    if (creator) {
+      await this.assignCreatorRole(savedEcho._id.toString(), creator);
+    }
+
+    return savedEcho;
   }
 
   async addMember(echoId: string, userId: string, password?: string): Promise<Echo> {
@@ -131,5 +142,40 @@ export class EchoService {
   async remove(id: string): Promise<{ deleted: boolean }> {
     const deleted = await this.echoModel.findByIdAndDelete(id).exec();
     return { deleted: Boolean(deleted) };
+  }
+
+  private async assignCreatorRole(echoId: string, userId: string): Promise<void> {
+    try {
+      // Find or create creator role with all permissions
+      let creatorRole = await this.roleService.findOneByName('creator');
+
+      if (!creatorRole) {
+        // Create creator role with all default permissions
+        const allPermissions = [
+          'read',
+          'write',
+          'delete',
+          'manage_members',
+          'manage_roles',
+          'manage_settings',
+          'create_posts',
+          'delete_posts',
+          'manage_comments',
+          'moderate',
+        ];
+
+        creatorRole = await this.roleService.create({
+          name: 'creator',
+          color: '#FF0000', // Red color for creator role
+          permissions: allPermissions,
+        });
+      }
+
+      // Assign creator role to the user
+      await this.memberRoleService.create(echoId, userId, creatorRole._id.toString());
+    } catch (error) {
+      console.error(`Error assigning creator role: ${error.message}`);
+      // Don't throw error if role assignment fails, echo creation should still succeed
+    }
   }
 }

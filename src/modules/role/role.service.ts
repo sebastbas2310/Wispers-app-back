@@ -28,8 +28,12 @@ export class RoleService {
     return role;
   }
 
+  async findOneByName(name: string): Promise<Role | null> {
+    return this.roleModel.findOne({ name }).exec();
+  }
+
   async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
-    const updated = await this.roleModel.findByIdAndUpdate(id, updateRoleDto, { new: true }).exec();
+    const updated = this.roleModel.findByIdAndUpdate(id, updateRoleDto, { new: true }).exec();
     if (!updated) {
       throw new NotFoundException(`Role #${id} not found`);
     }
