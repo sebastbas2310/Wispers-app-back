@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { MemberRole, MemberRoleDocument } from '../entities/member-role.entity';
+import { MemberRole, MemberRoleDocument } from './entities/member-role.entity';
 
 @Injectable()
 export class MemberRoleService {
@@ -22,13 +22,19 @@ export class MemberRoleService {
 
     if (existingRole) {
       // Update existing role
-      return this.memberRoleModel
+      const updated = await this.memberRoleModel
         .findByIdAndUpdate(
           existingRole._id,
           { roleId: new Types.ObjectId(roleId), assignedAt: new Date() },
           { new: true },
         )
         .exec();
+      
+      if (!updated) {
+        throw new BadRequestException('Failed to update member role');
+      }
+      
+      return updated;
     }
 
     const memberRole = new this.memberRoleModel({

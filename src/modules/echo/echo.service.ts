@@ -172,7 +172,9 @@ export class EchoService {
       }
 
       // Assign creator role to the user
-      await this.memberRoleService.create(echoId, userId, creatorRole._id.toString());
+      const roleDoc = creatorRole as any;
+      const roleId = roleDoc._id?.toString() || roleDoc.id;
+      await this.memberRoleService.create(echoId, userId, roleId);
     } catch (error) {
       console.error(`Error assigning creator role: ${error.message}`);
       // Don't throw error if role assignment fails, echo creation should still succeed

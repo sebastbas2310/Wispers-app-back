@@ -33,7 +33,7 @@ export class RoleService {
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
-    const updated = this.roleModel.findByIdAndUpdate(id, updateRoleDto, { new: true }).exec();
+    const updated = await this.roleModel.findByIdAndUpdate(id, updateRoleDto, { new: true }).exec();
     if (!updated) {
       throw new NotFoundException(`Role #${id} not found`);
     }
