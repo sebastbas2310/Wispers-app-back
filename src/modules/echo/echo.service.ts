@@ -180,17 +180,68 @@ export class EchoService {
     return memberRole;
   }
 
+  async getCreatorRole(echoId: string): Promise<{ userId: string; roleId: string; isCreator: boolean }> {
+    if (!Types.ObjectId.isValid(echoId)) {
+      throw new BadRequestException('Invalid echoId');
+    }
+
+    const echo = await this.echoModel.findById(echoId).exec();
+    if (!echo) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
+    }
+
+    // Find creator role
+    let creatorUserId = null;
+    let creatorRoleId = null;
+
+    for (const memberRole of echo.memberRoles || []) {
+      const role = await this.roleService.findOne(memberRole.roleId.toString());
+      if (role && role.name === 'creator') {
+        creatorUserId = memberRole.userId;
+        creatorRoleId = memberRole.roleId.toString();
+        break;
+      }
+    }
+
+    if (!creatorUserId) {
+      throw new NotFoundException(`Creator role not found for echo ${echoId}`);
+    }
+
+    return {
+      userId: creatorUserId,
+      roleId: creatorRoleId,
+      isCreator: true,
+    };
+  }
+
   async assignMemberRole(echoId: string, userId: string, roleId: string): Promise<Echo> {
     if (!Types.ObjectId.isValid(echoId) || !Types.ObjectId.isValid(roleId)) {
       throw new BadRequestException('Invalid echoId or roleId');
     }
 
-    // Check if role already exists and update or add new
+    // Verify the role exists and get its details
+    const role = await this.roleService.findOne(roleId);
+    if (!role) {
+      throw new NotFoundException(`Role with _id ${roleId} not found`);
+    }
+
+    // CRITICAL: Prevent assigning 'creator' role to anyone
+    if (role.name === 'creator') {
+      throw new BadRequestException('Cannot manually assign creator role. It is assigned automatically to the echo owner.');
+    }
+
+    // Get the echo to check current roles
+    const echo = await this.echoModel.findById(echoId).exec();
+    if (!echo) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
+    }
+
+    // Remove existing role first
     const updated = await this.echoModel
       .findByIdAndUpdate(
         echoId,
         {
-          $pull: { memberRoles: { userId } }, // Remove existing role first
+          $pull: { memberRoles: { userId } },
         },
         { new: false },
       )

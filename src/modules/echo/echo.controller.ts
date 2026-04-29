@@ -85,6 +85,11 @@ export class EchoController {
     return this.echoService.getMemberRoles(echoId);
   }
 
+  @Get(':echoId/creator')
+  getCreator(@Param('echoId', ParseMongoIdPipe) echoId: string) {
+    return this.echoService.getCreatorRole(echoId);
+  }
+
   @Get(':echoId/members/:userId/role')
   getMemberRole(@Param('echoId', ParseMongoIdPipe) echoId: string, @Param('userId') userId: string) {
     return this.echoService.getMemberRole(echoId, userId);
