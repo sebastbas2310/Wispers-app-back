@@ -10,6 +10,6 @@ export class CreateTagDto {
   color?: string;
 
   @IsString()
-  @IsOptional()
-  echoID?: string;
+  @IsNotEmpty()
+  echoID: string;
 } 

@@ -18,6 +18,11 @@ export class TagsController {
     return this.tagsService.findAll();
   }
 
+  @Get('echo/:echoId')
+  findByEcho(@Param('echoId', ParseMongoIdPipe) echoId: string) {
+    return this.tagsService.findByEcho(echoId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseMongoIdPipe) id: string) {
     return this.tagsService.findOne(id);

@@ -38,6 +38,10 @@ export class TagsService {
     return updated;
   }
 
+  async findByEcho(echoID: string): Promise<Tag[]> {
+    return this.tagModel.find({ echoID }).exec();
+  }
+
   async remove(id: string): Promise<{ deleted: boolean }> {
     const res = await this.tagModel.deleteOne({ ID: id }).exec();
     return { deleted: res.deletedCount > 0 };

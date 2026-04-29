@@ -61,6 +61,11 @@ export class EchoController {
     return this.echoService.findOne(id);
   }
 
+  @Post(':id/access')
+  accessPrivateEcho(@Param('id', ParseMongoIdPipe) id: string, @Body('password') password?: string) {
+    return this.echoService.findOneWithPasswordValidation(id, password);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
   update(@Param('id', ParseMongoIdPipe) id: string, @Body() updateEchoDto: UpdateEchoDto, @Request() req: any) {
@@ -73,5 +78,31 @@ export class EchoController {
   @Delete(':id')
   remove(@Param('id', ParseMongoIdPipe) id: string) {
     return this.echoService.remove(id);
+  }
+
+  @Get(':echoId/members/roles')
+  getMemberRoles(@Param('echoId', ParseMongoIdPipe) echoId: string) {
+    return this.echoService.getMemberRoles(echoId);
+  }
+
+  @Get(':echoId/members/:userId/role')
+  getMemberRole(@Param('echoId', ParseMongoIdPipe) echoId: string, @Param('userId') userId: string) {
+    return this.echoService.getMemberRole(echoId, userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':echoId/members/:userId/role')
+  assignMemberRole(
+    @Param('echoId', ParseMongoIdPipe) echoId: string,
+    @Param('userId') userId: string,
+    @Body('roleId') roleId: string,
+  ) {
+    return this.echoService.assignMemberRole(echoId, userId, roleId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':echoId/members/:userId/role')
+  removeMemberRole(@Param('echoId', ParseMongoIdPipe) echoId: string, @Param('userId') userId: string) {
+    return this.echoService.removeMemberRole(echoId, userId);
   }
 }

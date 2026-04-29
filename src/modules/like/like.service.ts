@@ -10,7 +10,7 @@ export class LikeService {
     @InjectModel(Like.name) private likeModel: Model<LikeDocument>,
   ) {}
 
-  async create(createLikeDto: CreateLikeDto, userId: string): Promise<Like> {
+  async create(createLikeDto: CreateLikeDto, userId: string): Promise<{ action: 'liked' | 'unliked'; like?: Like }> {
     // Verificar si el usuario ya dio like a este post
     const existingLike = await this.likeModel
       .findOne({
@@ -19,15 +19,19 @@ export class LikeService {
       })
       .exec();
 
+    // Si ya existe un like, eliminarlo (toggle)
     if (existingLike) {
-      throw new BadRequestException('Ya has dado like a este post');
+      await this.likeModel.deleteOne({ _id: existingLike._id }).exec();
+      return { action: 'unliked' };
     }
 
+    // Si no existe, crear el like
     const created = new this.likeModel({
       userId,
       postId: createLikeDto.postId,
     });
-    return created.save();
+    const savedLike = await created.save();
+    return { action: 'liked', like: savedLike };
   }
 
   async findByPost(postId: string): Promise<Like[]> {

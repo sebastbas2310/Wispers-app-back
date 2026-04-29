@@ -1,8 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 import * as shortid from 'shortid';
 
 export type EchoDocument = HydratedDocument<Echo>;
+
+@Schema({ _id: false })
+export class MemberRole {
+  @Prop({ required: true })
+  userId: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'Role', required: true })
+  roleId: Types.ObjectId;
+
+  @Prop({ default: Date.now })
+  assignedAt: Date;
+}
 
 @Schema()
 export class Echo {
@@ -44,7 +56,9 @@ export class Echo {
 
   @Prop({ required: true })
   echoType: string;
-  
+
+  @Prop({ type: [MemberRole], default: [] })
+  memberRoles: MemberRole[];
 }
 
 export const EchoSchema = SchemaFactory.createForClass(Echo);
