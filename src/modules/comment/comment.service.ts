@@ -15,8 +15,8 @@ export class CommentService {
 
   private mapToResponseDto(comment: Comment): CommentResponseDto {
     return {
-      id: comment.id,
-      message: comment.message,
+      ID: comment.id,
+      content: comment.message,
       userId: comment.userId,
       postId: comment.postId,
       createdAt: comment.createdAt,
@@ -28,7 +28,8 @@ export class CommentService {
 
   async create(createCommentDto: CreateCommentDto, userId: string): Promise<Comment> {
     const created = new this.commentModel({
-      ...createCommentDto,
+      message: createCommentDto.content,
+      postId: createCommentDto.postId,
       userId,
     });
     return created.save();
@@ -68,10 +69,15 @@ export class CommentService {
       throw new BadRequestException('No puedes editar comentarios de otros usuarios');
     }
 
+    const updateData = { updatedAt: new Date() };
+    if (updateCommentDto.content !== undefined) {
+      updateData['message'] = updateCommentDto.content;
+    }
+
     const updated = await this.commentModel
       .findOneAndUpdate(
         { id },
-        { ...updateCommentDto, updatedAt: new Date() },
+        updateData,
         { new: true },
       )
       .exec();
