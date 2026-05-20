@@ -223,8 +223,8 @@ export class EchoService {
     }
 
     // Find creator role
-    let creatorUserId = null;
-    let creatorRoleId = null;
+    let creatorUserId: string | null = null;
+    let creatorRoleId: string | null = null;
 
     for (const memberRole of echo.memberRoles || []) {
       const role = await this.roleService.findOne(memberRole.roleId.toString());
@@ -235,7 +235,7 @@ export class EchoService {
       }
     }
 
-    if (!creatorUserId) {
+    if (!creatorUserId || !creatorRoleId) {
       throw new NotFoundException(`Creator role not found for echo ${echoId}`);
     }
 
