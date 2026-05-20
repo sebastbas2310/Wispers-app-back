@@ -80,6 +80,12 @@ export class EchoController {
     return this.echoService.remove(id);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Delete(':echoId/member/:userId')
+  removeMember(@Param('echoId', ParseMongoIdPipe) echoId: string, @Param('userId') userId: string) {
+    return this.echoService.removeMember(echoId, userId);
+  }
+
   @Get(':echoId/members/roles')
   getMemberRoles(@Param('echoId', ParseMongoIdPipe) echoId: string) {
     return this.echoService.getMemberRoles(echoId);

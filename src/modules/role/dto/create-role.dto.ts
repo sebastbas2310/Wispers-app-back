@@ -1,4 +1,4 @@
-import { IsString, IsArray, IsNotEmpty } from 'class-validator';
+import { IsString, IsArray, IsNotEmpty, IsMongoId, IsOptional } from 'class-validator';
 
 export class CreateRoleDto {
   @IsString()
@@ -12,4 +12,8 @@ export class CreateRoleDto {
   @IsArray()
   @IsString({ each: true })
   permissions: string[];
+
+  @IsMongoId()
+  @IsOptional()
+  echoId?: string;
 }

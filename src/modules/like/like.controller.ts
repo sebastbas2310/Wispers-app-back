@@ -1,4 +1,4 @@
-import { Controller, Post, Delete, Get, Param, UseGuards, Request, Body } from '@nestjs/common';
+import { Controller, Post, Delete, Get, Param, UseGuards, Request, Body, HttpCode } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -51,6 +51,7 @@ export class LikeController {
 
   @UseGuards(JwtAuthGuard)
   @Delete('post/:postId')
+  @HttpCode(204)
   removeByPost(@Param('postId', ParseMongoIdPipe) postId: string, @Request() req: any) {
     const userId = req.user?._id || req.user?.id || req.user?.sub;
     return this.likeService.removeByUserAndPost(userId, postId);

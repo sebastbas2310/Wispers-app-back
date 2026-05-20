@@ -4,12 +4,14 @@ import { Model, Types } from 'mongoose';
 import { CreateEchoDto } from './dto/create-echo.dto';
 import { UpdateEchoDto } from './dto/update-echo.dto';
 import { Echo, EchoDocument } from './entities/echo.entity';
+import { User, UserDocument } from '../user/entities/user.entity';
 import { RoleService } from '../role/role.service';
 
 @Injectable()
 export class EchoService {
   constructor(
     @InjectModel(Echo.name) private echoModel: Model<EchoDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
     private roleService: RoleService,
   ) {}
 
@@ -160,6 +162,36 @@ export class EchoService {
   async remove(id: string): Promise<{ deleted: boolean }> {
     const deleted = await this.echoModel.findByIdAndDelete(id).exec();
     return { deleted: Boolean(deleted) };
+  }
+
+  async removeMember(echoId: string, userId: string): Promise<{ ok: boolean }> {
+    if (!Types.ObjectId.isValid(echoId)) {
+      throw new BadRequestException('Invalid echoId');
+    }
+
+    // Remover userId del array echoMembers del echo
+    const echo = await this.echoModel
+      .findByIdAndUpdate(
+        echoId,
+        { $pull: { echoMembers: userId } },
+        { new: true },
+      )
+      .exec();
+
+    if (!echo) {
+      throw new NotFoundException(`Echo with _id ${echoId} not found`);
+    }
+
+    // Remover echoId del array echos del usuario
+    await this.userModel
+      .findByIdAndUpdate(
+        userId,
+        { $pull: { echos: echoId } },
+        { new: true },
+      )
+      .exec();
+
+    return { ok: true };
   }
 
   async getMemberRole(echoId: string, userId: string): Promise<any> {

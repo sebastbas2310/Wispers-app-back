@@ -10,7 +10,7 @@ export class LikeService {
     @InjectModel(Like.name) private likeModel: Model<LikeDocument>,
   ) {}
 
-  async create(createLikeDto: CreateLikeDto, userId: string): Promise<{ action: 'liked' | 'unliked'; like?: Like }> {
+  async create(createLikeDto: CreateLikeDto, userId: string): Promise<{ action: 'liked'; like: Like }> {
     // Verificar si el usuario ya dio like a este post
     const existingLike = await this.likeModel
       .findOne({
@@ -19,10 +19,9 @@ export class LikeService {
       })
       .exec();
 
-    // Si ya existe un like, eliminarlo (toggle)
+    // Si ya existe un like, devolverlo (idempotente)
     if (existingLike) {
-      await this.likeModel.deleteOne({ _id: existingLike._id }).exec();
-      return { action: 'unliked' };
+      return { action: 'liked', like: existingLike };
     }
 
     // Si no existe, crear el like
@@ -68,17 +67,19 @@ export class LikeService {
     const res = await this.likeModel
       .deleteOne({ userId, postId })
       .exec();
-    return { deleted: res.deletedCount > 0 };
+    // Idempotente: devolver deleted: true incluso si no existía el like
+    return { deleted: true };
   }
 
-  async countByPost(postId: string): Promise<number> {
-    return this.likeModel.countDocuments({ postId }).exec();
+  async countByPost(postId: string): Promise<{ count: number }> {
+    const count = await this.likeModel.countDocuments({ postId }).exec();
+    return { count: Math.max(0, count) };
   }
 
-  async userLikedPost(userId: string, postId: string): Promise<boolean> {
+  async userLikedPost(userId: string, postId: string): Promise<{ liked: boolean }> {
     const like = await this.likeModel
       .findOne({ userId, postId })
       .exec();
-    return !!like;
+    return { liked: !!like };
   }
 }

@@ -40,16 +40,10 @@ export class CommentService {
 
   async findByPost(postId: string): Promise<CommentResponseDto[]> {
     const comments = await this.commentModel.find({ postId }).sort({ createdAt: -1 }).exec();
+    if (!comments || comments.length === 0) {
+      return [];
+    }
     return comments.map(comment => this.mapToResponseDto(comment));
-  }
-
-  async findByPostWithDetails(postId: string): Promise<PostCommentsResponseDto> {
-    const comments = await this.commentModel.find({ postId }).sort({ createdAt: -1 }).exec();
-    return {
-      postId,
-      total: comments.length,
-      comments: comments.map(comment => this.mapToResponseDto(comment)),
-    };
   }
 
   async findByUser(userId: string): Promise<Comment[]> {

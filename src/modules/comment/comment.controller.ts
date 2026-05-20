@@ -33,7 +33,7 @@ export class CommentController {
 
   @Get('post/:postId')
   findByPost(@Param('postId', ParseMongoIdPipe) postId: string) {
-    return this.commentService.findByPostWithDetails(postId);
+    return this.commentService.findByPost(postId);
   }
 
   @Get('post/:postId/count')
